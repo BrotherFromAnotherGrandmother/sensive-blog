@@ -2,9 +2,6 @@ from django.db.models import Count
 from django.shortcuts import render
 from blog.models import Comment, Post, Tag
 
-tags = Tag.objects.annotate(tags_count=Count('posts'))
-popular_tags = tags.order_by('-tags_count')
-most_popular_tags = popular_tags[:5]
 
 
 
@@ -61,6 +58,10 @@ def index(request):
     for post in most_popular_posts:
         post.comments_count = count_for_id[post.id]
 
+    tags = Tag.objects.annotate(tags_count=Count('posts'))
+    popular_tags = tags.order_by('-tags_count')
+    most_popular_tags = popular_tags[:5]
+
     context = {
         'most_popular_posts': [
             serialize_post_optimized(post) for post in most_popular_posts
@@ -81,6 +82,10 @@ def post_detail(request, slug):
     count_for_id = dict(ids_and_comments)
     for post in most_popular_posts:
         post.comments_count = count_for_id[post.id]
+
+    tags = Tag.objects.annotate(tags_count=Count('posts'))
+    popular_tags = tags.order_by('-tags_count')
+    most_popular_tags = popular_tags[:5]
 
     post = Post.objects.get(slug=slug)
     comments = Comment.objects.filter(post=post)
@@ -128,6 +133,10 @@ def tag_filter(request, tag_title):
     count_for_id = dict(ids_and_comments)
     for post in most_popular_posts:
         post.comments_count = count_for_id[post.id]
+
+    tags = Tag.objects.annotate(tags_count=Count('posts'))
+    popular_tags = tags.order_by('-tags_count')
+    most_popular_tags = popular_tags[:5]
 
     tag = Tag.objects.get(title=tag_title)
 
