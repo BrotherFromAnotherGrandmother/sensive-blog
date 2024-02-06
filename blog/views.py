@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.shortcuts import render
 from blog.models import Comment, Post, Tag
 
@@ -26,15 +26,17 @@ def serialize_post_optimized(post):
         'image_url': post.image.url if post.image else None,
         'published_at': post.published_at,
         'slug': post.slug,
-        'tags': [serialize_tag_updated(tag) for tag in post.tags.all().annotate(posts_by_tag=Count('posts'))],
+        'tags': [serialize_tag_updated(tag) for tag in post.tags.all()],
         'first_tag_title': post.tags.all()[0].title,
     }
+
 
 def serialize_tag_updated(tag):
     return {
         'title': tag.title,
         'posts_with_tag': tag.posts_by_tag,
     }
+
 
 def serialize_tag(tag):
     return {
@@ -48,9 +50,11 @@ def get_likes(post):
 
 
 def index(request):
-    posts = Post.objects.all().prefetch_related('tags')
-    fresh_posts = posts.order_by('published_at')\
-        .annotate(comments_count=Count('comments'))\
+    posts = Post.objects.all(). \
+        prefetch_related(Prefetch('tags', queryset=Tag.objects.all()
+                                  .annotate(posts_by_tag=Count('posts'))))
+    fresh_posts = posts.order_by('published_at') \
+        .annotate(comments_count=Count('comments')) \
         .prefetch_related('author')
 
     most_fresh_posts = list(fresh_posts)[-5:]
@@ -135,24 +139,3 @@ def contacts(request):
     # позже здесь будет код для статистики заходов на эту страницу
     # и для записи фидбека
     return render(request, 'contacts.html', {})
-
-from django.db.models import Prefetch, Count
-
-# Пример модели
-class Category(models.Model):
-    name = models.CharField(max_length=100)
-
-class Product(models.Model):
-    name = models.CharField(max_length=100)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-
-# Запрос с annotate и prefetch_related
-Category.objects.prefetch_related(Prefetch('product_set', queryset=Product.objects.annotate(total=Count('name'))))
-
-# Использование аннотации внутри Prefetch
-for category in categories:
-    for product in category.product_set.all():
-        print(product.name, product.total)
-
-Post.objects.prefetch_related('tags')
-Post.objects.prefetch_related(Prefetch('tags', queryset=Tag.objects.all()))
