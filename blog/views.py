@@ -30,6 +30,11 @@ def serialize_post_optimized(post):
         'first_tag_title': post.tags.all()[0].title,
     }
 
+def serialize_tag_updated(tag):
+    return {
+        'title': tag.title,
+        'posts_with_tag': tag.posts_by_tag,
+    }
 
 def serialize_tag(tag):
     return {
@@ -37,11 +42,6 @@ def serialize_tag(tag):
         'posts_with_tag': len(Post.objects.filter(tags=tag)),
     }
 
-def serialize_tag_updated(tag):
-    return {
-        'title': tag.title,
-        'posts_with_tag': tag.posts_by_tag,
-    }
 
 def get_likes(post):
     return post.likes_count
@@ -135,3 +135,24 @@ def contacts(request):
     # позже здесь будет код для статистики заходов на эту страницу
     # и для записи фидбека
     return render(request, 'contacts.html', {})
+
+from django.db.models import Prefetch, Count
+
+# Пример модели
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+# Запрос с annotate и prefetch_related
+Category.objects.prefetch_related(Prefetch('product_set', queryset=Product.objects.annotate(total=Count('name'))))
+
+# Использование аннотации внутри Prefetch
+for category in categories:
+    for product in category.product_set.all():
+        print(product.name, product.total)
+
+Post.objects.prefetch_related('tags')
+Post.objects.prefetch_related(Prefetch('tags', queryset=Tag.objects.all()))
