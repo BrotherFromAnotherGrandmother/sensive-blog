@@ -4,6 +4,8 @@ from environs import Env
 env = Env()
 env.read_env()
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', [])
@@ -71,6 +73,7 @@ DATABASES = {
             'DATABASE_FILEPATH', os.path.join(BASE_DIR, 'db.sqlite3')),
     }
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
