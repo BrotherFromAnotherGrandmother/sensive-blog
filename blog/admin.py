@@ -10,9 +10,9 @@ class TagAdmin(admin.ModelAdmin):
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ['text', 'published_at']
-    autocomplete_fields = ['author', 'post',]
+    raw_id_fields = ['author', 'post',]
 
 
-admin.site.register(Post)
-admin.site.register(Tag)
-admin.site.register(Comment)
+admin.site.register(Post, PostAdmin)
+admin.site.register(Tag, TagAdmin)
+admin.site.register(Comment, CommentAdmin)
