@@ -12,7 +12,7 @@ def serialize_post(post):
         'image_url': post.image.url if post.image else None,
         'published_at': post.published_at,
         'slug': post.slug,
-        'tags': [serialize_tag(tag) for tag in post.tags.all()],
+        'tags': [serialize_tag(tag) for tag in post.tags.all().annotate(posts_by_tag=Count('posts'))],
         'first_tag_title': post.tags.all().first().title,
     }
 
@@ -41,7 +41,7 @@ def serialize_tag_updated(tag):
 def serialize_tag(tag):
     return {
         'title': tag.title,
-        'posts_with_tag': len(Post.objects.filter(tags=tag)),
+        'posts_with_tag': tag.posts_by_tag,
     }
 
 
