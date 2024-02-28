@@ -59,10 +59,6 @@ def serialize_tag_for_post_detail(tag):
     }
 
 
-def get_likes(post):
-    return post.likes_count
-
-
 def index(request):
     posts = Post.objects.all(). \
         prefetch_related(Prefetch('tags', queryset=Tag.objects.all()
@@ -147,10 +143,6 @@ def tag_filter(request, tag_title):
         ],
     }
     return render(request, 'posts-list.html', context)
-
-
-def get_related_posts_count(tag):
-    return tag.posts.count()
 
 
 def contacts(request):
