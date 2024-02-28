@@ -52,13 +52,6 @@ def serialize_tag_for_tag_filter(tag):
     }
 
 
-def serialize_tag_for_post_detail(tag):
-    return {
-        'title': tag.title,
-        'posts_with_tag': tag.posts_by_tag,
-    }
-
-
 def index(request):
     posts = Post.objects.all(). \
         prefetch_related(Prefetch('tags', queryset=Tag.objects.all()
@@ -112,12 +105,12 @@ def post_detail(request, slug):
         'image_url': post.image.url if post.image else None,
         'published_at': post.published_at,
         'slug': post.slug,
-        'tags': [serialize_tag_for_post_detail(tag) for tag in related_tags],
+        'tags': [serialize_tag(tag) for tag in related_tags],
     }
 
     context = {
         'post': serialized_post,
-        'popular_tags': [serialize_tag_for_post_detail(tag) for tag in most_popular_tags],
+        'popular_tags': [serialize_tag(tag) for tag in most_popular_tags],
         'most_popular_posts': [
             serialize_post(post) for post in most_popular_posts
         ],
