@@ -81,7 +81,7 @@ def post_detail(request, slug):
     most_popular_tags = Tag.objects.popular()[:5].annotate(posts_by_tag=Count('posts'))
 
     post = get_object_or_404(posts, slug=slug)
-    comments = Comment.objects.filter(post=post).select_related('author')
+    comments = post.comments.select_related('author')
     serialized_comments = []
     for comment in comments:
         serialized_comments.append({
