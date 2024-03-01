@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.urls import reverse
 from django.contrib.auth.models import User
 
@@ -24,6 +24,10 @@ class PostQuerySet(models.QuerySet):
     def year(self, year):
         posts_at_year = self.filter(published_at__year=year).order_by('published_at')
         return posts_at_year
+
+    def prefetch_tags(self):
+        return self.prefetch_related(Prefetch('tags', queryset=Tag.objects.all()
+                                              .annotate(posts_by_tag=Count('posts'))))
 
 
 class TagQuerySet(models.QuerySet):

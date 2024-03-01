@@ -53,9 +53,7 @@ def serialize_tag_for_tag_filter(tag):
 
 
 def index(request):
-    posts = Post.objects.all(). \
-        prefetch_related(Prefetch('tags', queryset=Tag.objects.all()
-                                  .annotate(posts_by_tag=Count('posts'))))
+    posts = Post.objects.all().prefetch_tags()
 
     fresh_posts = posts.order_by('published_at') \
         .annotate(comments_count=Count('comments')) \
