@@ -13,7 +13,7 @@ def serialize_post_updated(post):
         'published_at': post.published_at,
         'slug': post.slug,
         'tags': [serialize_tag_updated(tag) for tag in post.tags.all().annotate(posts_by_tag=Count('posts'))],
-        'first_tag_title': post.tags.all().first().title,
+        'first_tag_title': post.tags.first().title,
     }
 
 
